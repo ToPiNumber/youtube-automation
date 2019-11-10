@@ -1,0 +1,24 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "",
+  "main": "auth.js",
+  "dependencies": {
+    "google-auth-library": "5.5.1",
+    "googleapis": "45.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ToPiNumber/youtube-automation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ToPiNumber/youtube-automation/issues"
+  },
+  "homepage": "https://github.com/ToPiNumber/youtube-automation#readme"
+}
