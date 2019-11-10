@@ -11,8 +11,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\auth.js",
-            //"console": "externalTerminal"
+            "program": "${workspaceFolder}\\getchannels.js",
+            "console": "externalTerminal"
         }
     ]
 }
