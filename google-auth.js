@@ -1,35 +1,68 @@
+const fs = require('fs');
 const {google} = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 
+const CLIENT_SECRET_FILENAME = 'client_secret.json';
+const TOKEN_FILENAME = 'token.json';
+const APIKEY_FILENAME = 'apikey';
+
 module.exports = {
-    requestCredentials: function(scopes, clientSecretJson, onProcessAuthURL) {
-        let credentials = JSON.parse(clientSecretJson);
-        let clientSecret = credentials.installed.client_secret;
-        let clientId = credentials.installed.client_id;
-        let redirectUrl = credentials.installed.redirect_uris[0];
+    createOauth2Client: function(credentials) {
+        let clientSecret = credentials.clientSecret.installed.client_secret;
+        let clientId = credentials.clientSecret.installed.client_id;
+        let redirectUrl = credentials.clientSecret.installed.redirect_uris[0];
         let oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
+        if(credentials.token)
+            oauth2Client.credentials = credentials.token;
+
+        if(credentials.apiKey)
+            oauth2Client.apiKey = credentials.apiKey;
+
+        return oauth2Client;
+    },
+
+    requestToken: function(scopes, credentials, onProcessAuthURL) {
+        oauth2Client = this.createOauth2Client(credentials);
         let authUrl = oauth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: scopes
         });
 
-        let code = onProcessAuthURL(authUrl);
-        return new Promise((resolve, reject) => {
-            oauth2Client.getToken(code, (err, token) => {
-                if (err) 
-                    reject(err); 
-                else 
-                    resolve(token);
+        return onProcessAuthURL(authUrl)
+        .then(code => {
+            return new Promise((resolve, reject) => {
+                oauth2Client.getToken(code, (err, token) => {
+                    if (err) 
+                        reject(err); 
+                    else 
+                        resolve(token);
+                });
             });
         });
     },
 
-    getOauth2Client: function(scopes, clientSecretJson, tokenJson) {
-        let credentials = JSON.parse(clientSecretJson);
-        let clientSecret = credentials.installed.client_secret;
-        let clientId = credentials.installed.client_id;
-        let redirectUrl = credentials.installed.redirect_uris[0];
-        let oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
-        oauth2Client.credentials = JSON.parse(tokenJson);
-    }
+    getCredentials: function(credentialsFolder, account) {
+        const accountFolder = `${credentialsFolder}/${account}`;
+        if(!fs.existsSync(accountFolder))
+            throw { message: "Account folder doesn't exist", path: accountFolder };
+
+        const clientSecretPath = accountFolder + '/' + CLIENT_SECRET_FILENAME;
+        if(!fs.existsSync(clientSecretPath))
+            throw { message: `Can't find ${CLIENT_SECRET_FILENAME}`, path: clientSecretPath };
+
+        let result = { 
+            folder: accountFolder,
+            tokenPath: accountFolder + '/' + TOKEN_FILENAME,
+            apiKeyPath: accountFolder + '/' + APIKEY_FILENAME,
+            clientSecret: JSON.parse(fs.readFileSync(clientSecretPath, 'utf8')) 
+        };
+
+        if(fs.existsSync(result.tokenPath))
+            result.token = JSON.parse(fs.readFileSync(result.tokenPath, 'utf8'));
+
+        if(fs.existsSync(result.apiKeyPath))
+            result.apiKey = fs.readFileSync(result.apiKeyPath, 'utf8');
+    
+        return result;
+    },
 };
