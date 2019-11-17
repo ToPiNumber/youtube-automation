@@ -43,4 +43,4 @@ async function StoreCredentials(useExistedCodeFile) {
     ).catch(error => console.error(error));
 }
 
-StoreCredentials(false);
+StoreCredentials(true);

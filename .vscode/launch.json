@@ -11,8 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\store-credentials.js",
-            "console": "externalTerminal"
+            "program": "${workspaceFolder}\\src\\store-credentials.js",
         },
         {
             "type": "node",
@@ -21,7 +20,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\get-channels.js",
+            "program": "${workspaceFolder}\\src\\get-channels.js",
         }
     ]
 }
