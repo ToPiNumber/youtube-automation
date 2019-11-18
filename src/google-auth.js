@@ -7,13 +7,24 @@ const TOKEN_FILENAME = 'token.json';
 const APIKEY_FILENAME = 'apikey';
 
 module.exports = {
+    refreshTokenIfNeed: async function(oauth2Client, credentials) {
+        if(credentials.token.refresh_token && credentials.token.expiry_date && credentials.token.expiry_date < Date.now()) {
+            var token = await oauth2Client.refreshToken(credentials.token.refresh_token);
+            credentials.token.access_token = token.access_token;
+            credentials.token.expiry_date = token.access_token;
+            oauth2Client.setCredentials(credentials.token);
+        }
+    },
+
     createOauth2Client: function(credentials) {
         let clientSecret = credentials.clientSecret.installed.client_secret;
         let clientId = credentials.clientSecret.installed.client_id;
         let redirectUrl = credentials.clientSecret.installed.redirect_uris[0];
         let oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
-        if(credentials.token)
-            oauth2Client.credentials = credentials.token;
+        if(credentials.token) {
+            oauth2Client.setCredentials(credentials.token);
+            this.refreshTokenIfNeed(oauth2Client, credentials);
+        }
 
         if(credentials.apiKey)
             oauth2Client.apiKey = credentials.apiKey;
