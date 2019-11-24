@@ -16,11 +16,20 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Get Channels",
+            "name": "Export Subscr",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\src\\get-channels.js",
+            "program": "${workspaceFolder}\\src\\subscriptions-export.js",
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Import Subscr",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\src\\subscriptions-import.js",
         }
     ]
 }
