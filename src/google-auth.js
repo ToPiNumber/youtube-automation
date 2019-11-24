@@ -10,20 +10,20 @@ module.exports = {
     refreshTokenIfNeed: async function(oauth2Client, credentials) {
         if(credentials.token.refresh_token && credentials.token.expiry_date && credentials.token.expiry_date < Date.now()) {
             var token = await oauth2Client.refreshToken(credentials.token.refresh_token);
-            credentials.token.access_token = token.access_token;
-            credentials.token.expiry_date = token.access_token;
+            credentials.token.access_token = token.tokens.access_token;
+            credentials.token.expiry_date = token.tokens.expiry_date;
             oauth2Client.setCredentials(credentials.token);
         }
     },
 
-    createOauth2Client: function(credentials) {
+    createOauth2Client: async function(credentials) {
         let clientSecret = credentials.clientSecret.installed.client_secret;
         let clientId = credentials.clientSecret.installed.client_id;
         let redirectUrl = credentials.clientSecret.installed.redirect_uris[0];
         let oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
         if(credentials.token) {
             oauth2Client.setCredentials(credentials.token);
-            this.refreshTokenIfNeed(oauth2Client, credentials);
+            await this.refreshTokenIfNeed(oauth2Client, credentials);
         }
 
         if(credentials.apiKey)
@@ -32,7 +32,7 @@ module.exports = {
         return oauth2Client;
     },
 
-    requestToken: function(scopes, credentials, onProcessAuthURL) {
+    requestToken: async function(scopes, credentials, onProcessAuthURL) {
         oauth2Client = this.createOauth2Client(credentials);
         let authUrl = oauth2Client.generateAuthUrl({
             access_type: 'offline',
@@ -62,6 +62,7 @@ module.exports = {
             throw { message: `Can't find ${CLIENT_SECRET_FILENAME}`, path: clientSecretPath };
 
         let result = { 
+            account: account,
             folder: accountFolder,
             tokenPath: accountFolder + '/' + TOKEN_FILENAME,
             apiKeyPath: accountFolder + '/' + APIKEY_FILENAME,
