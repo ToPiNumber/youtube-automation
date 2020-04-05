@@ -16,7 +16,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Export Subscr",
+            "name": "Export Subs",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -25,11 +25,20 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Import Subscr",
+            "name": "Import Subs",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\src\\subscriptions-import.js",
+        }
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Generate Channels URLs",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\src\\subscriptions-urls.js",
         }
     ]
 }
