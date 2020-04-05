@@ -33,16 +33,18 @@ module.exports = {
     },
 
     requestToken: async function(scopes, credentials, onProcessAuthURL) {
-        oauth2Client = this.createOauth2Client(credentials);
-        let authUrl = oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: scopes
-        });
+        return this.createOauth2Client(credentials)
+        .then(async auth => {
+            let authUrl = auth.generateAuthUrl({
+                access_type: 'offline',
+                scope: scopes
+            });
 
-        return onProcessAuthURL(authUrl)
-        .then(code => {
+            return { auth: auth, code: await onProcessAuthURL(authUrl) };
+        })
+        .then(({auth, code}) => {
             return new Promise((resolve, reject) => {
-                oauth2Client.getToken(code, (err, token) => {
+                auth.getToken(code, (err, token) => {
                     if (err) 
                         reject(err); 
                     else 
@@ -53,21 +55,24 @@ module.exports = {
     },
 
     getCredentials: function(credentialsFolder, account) {
-        const accountFolder = `${credentialsFolder}/${account}`;
+        let accountFolder = credentialsFolder;
         if(!fs.existsSync(accountFolder))
-            throw { message: "Account folder doesn't exist", path: accountFolder };
+            fs.mkdirSync(accountFolder);
 
-        const clientSecretPath = accountFolder + '/' + CLIENT_SECRET_FILENAME;
-        if(!fs.existsSync(clientSecretPath))
-            throw { message: `Can't find ${CLIENT_SECRET_FILENAME}`, path: clientSecretPath };
+        accountFolder += `/${account}`;
+        if(!fs.existsSync(accountFolder))
+            fs.mkdirSync(accountFolder);
 
         let result = { 
             account: account,
             folder: accountFolder,
             tokenPath: accountFolder + '/' + TOKEN_FILENAME,
             apiKeyPath: accountFolder + '/' + APIKEY_FILENAME,
-            clientSecret: JSON.parse(fs.readFileSync(clientSecretPath, 'utf8')) 
+            clientSecretPath: accountFolder + '/' + CLIENT_SECRET_FILENAME,
         };
+
+        if(fs.existsSync(result.clientSecretPath))     
+            result.clientSecret = JSON.parse(fs.readFileSync(result.clientSecretPath, 'utf8')) 
 
         if(fs.existsSync(result.tokenPath))
             result.token = JSON.parse(fs.readFileSync(result.tokenPath, 'utf8'));

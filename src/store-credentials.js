@@ -2,10 +2,10 @@ const fs = require('fs');
 const ga = require("./google-auth");
 const readline = require('readline');
 
-const SCOPES = ['https://www.googleapis.com/auth/youtube.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/youtube'];
 
 async function StoreCredentials(useExistedCodeFile) {
-    let credentials = ga.getCredentials('../.google-credentials', 'alex.bg.3.0');
+    let credentials = ga.getCredentials('../.google-credentials', 'alexbg.home');
     await ga.requestToken(SCOPES, credentials,
         async (authUrl) => { 
             fs.writeFileSync(`${credentials.folder}/authUrl.txt`, authUrl);
@@ -35,12 +35,14 @@ async function StoreCredentials(useExistedCodeFile) {
         token => {
             return new Promise((resolve, reject) => {
                 fs.writeFile(credentials.tokenPath, JSON.stringify(token), (error) => {
-                    if (error) reject(error);
-                    else resolve(token);
+                    if (error) 
+                        return reject(error);
+                    resolve(token);
+                    console.log(`Access Token saved to file: ${credentials.tokenPath}`);
                 });
             });
         },
     ).catch(error => console.error(error));
 }
 
-StoreCredentials(true);
+StoreCredentials(false);

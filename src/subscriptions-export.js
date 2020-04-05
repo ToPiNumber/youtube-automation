@@ -1,5 +1,6 @@
 const fs = require("fs");
 const ga = require("./google-auth");
+const settings = require('./settings');
 const {google} = require('googleapis');
 
 function getSubscribtions(auth, nextPageToken, subscriptions = []) { 
@@ -33,7 +34,7 @@ function getSubscribtions(auth, nextPageToken, subscriptions = []) {
 }
 
 async function main() {    
-    let credentials = ga.getCredentials('../.google-credentials', 'alex.bg.3.0');
+    let credentials = ga.getCredentials('../.google-credentials', settings.exportFromAccount);
     ga.createOauth2Client(credentials)
     .then(auth => {        
         return getSubscribtions(auth, undefined);
