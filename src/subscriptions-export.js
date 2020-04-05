@@ -3,7 +3,7 @@ const ga = require("./google-auth");
 const settings = require('./settings');
 const {google} = require('googleapis');
 
-function getSubscribtions(auth, nextPageToken, subscriptions = []) { 
+function getSubscriptions(auth, nextPageToken, subscriptions = []) { 
     let youtube = google.youtube('v3');
     return new Promise((resolve, reject) => {
         youtube.subscriptions.list({
@@ -28,7 +28,7 @@ function getSubscribtions(auth, nextPageToken, subscriptions = []) {
     })
     .then(result => {
         if(result.nextPageToken)
-            return getSubscribtions(auth, result.nextPageToken, result.subscriptions);
+            return getSubscriptions(auth, result.nextPageToken, result.subscriptions);
         return result;
     });
 }
@@ -37,7 +37,7 @@ async function main() {
     let credentials = ga.getCredentials('../.google-credentials', settings.exportFromAccount);
     ga.createOauth2Client(credentials)
     .then(auth => {        
-        return getSubscribtions(auth, undefined);
+        return getSubscriptions(auth, undefined);
     })
     .then(result => {
         let path = './output';
